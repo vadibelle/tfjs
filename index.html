@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>TensorFlow.js browser example</title>
+
+    <!-- Load TensorFlow.js from a script tag -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  </head>
+  <body>
+    <h1>TensorFlow.js example</h1>
+    <h2>
+    <script>
+        const xs = tf.tensor2d([[1, 2], [3, 4]]);
+
+        xs.print()
+        const ys = xs.mul(tf.tensor([5,10],[2]));
+        ys.print();
+        function getYs(xs, m, c) {
+            return xs.mul(tf.scalar(m)).add(c);
+    }
+const t1 = tf.tensor1d([1,5,10]);
+const t2 = getYs(t1, 2, 1);
+t2.print();
+
+// const t3 = tf.tensor1d([25, 76, 4, 23, -5, 22]);
+// const max = t3.max(); // 76
+// const min = t3.min(); // -5
+// const arr = t3.array()
+// let newArr = []
+// console.log(arr)
+// for (let i = 0; i < arr.length; i++) {
+//   console.log(arr[i]);
+//   let tmp = (i - min)/(max - min);
+//   console.log(tmp)
+//    newArr.add(tmp); 
+// }
+
+// const t3norm = tf.tensor1d(newArr);
+// t3norm.print()
+for (let i = 0; i < 100; i++) {
+    tf.tensor1d([1,2,3]);
+}
+tf.dispose()
+for (let i = 0; i < 100; i++) {
+    tf.tensor1d([4,5,6]);
+}
+tf.tidy()
+console.log(tf.memory());
+        </script>
+        </h2>
+  </body>
+</html>
