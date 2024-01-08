@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>TensorFlow.js linear regression</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis"></script>
+</head>
+<body>
+<script type="text/javascript">
+
+async function run () {
+    // Ensure backend has initialized
+    await tf.ready();
+
+    // Import from CSV
+    const houseSalesDataset = tf.data.csv("http://127.0.0.1:8080/kc_house_data.csv");
+const pointsDataset = houseSalesDataset.map(record => ({ x: record.sqft_basement, y: record.price })); 
+const points = await pointsDataset.toArray();
+
+function plot (points, featureName) {
+    tfvis.render.scatterplot(
+        {name: `${featureName} vs House Price`},
+        {values: [points], series: ['original']},
+        {
+            xLabel: featureName,
+            yLabel: 'Price',
+        }
+    );
+}
+    plot(points, 'Square Feet');
+    const featureValues = points.map(p => p.x);
+const featureTensor = tf.tensor2d(featureValues, [featureValues.length, 1]);
+const labelValues = points.map(p => p.y);
+const labelTensor = tf.tensor2d(labelValues, [labelValues.length, 1]);
+
+}
+run()
+</script>
+linear
+</body>
