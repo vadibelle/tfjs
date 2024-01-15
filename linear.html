@@ -8,31 +8,79 @@
 <body>
 <script type="text/javascript">
 
+function createModel () {
+    const model = tf.sequential();   
+    // More code to go here
+    return model;
+}
+
+function normalise(tensor) {
+    const min = tensor.min();
+    const max = tensor.max();
+    const normalisedTensor = tensor.sub(min).div(max.sub(min));
+    return normalisedTensor;
+    // return {
+    //   tensor: normalisedTensor,
+    //   min,
+    //   max
+    // };
+  }
+
 async function run () {
     // Ensure backend has initialized
-    await tf.ready();
+//     await tf.ready();
 
-    // Import from CSV
+//     // Import from CSV
     const houseSalesDataset = tf.data.csv("http://127.0.0.1:8080/kc_house_data.csv");
-const pointsDataset = houseSalesDataset.map(record => ({ x: record.sqft_basement, y: record.price })); 
+const pointsDataset = houseSalesDataset.map(record => ({ x: record.sqft_living, y: record.price })); 
 const points = await pointsDataset.toArray();
 
-function plot (points, featureName) {
-    tfvis.render.scatterplot(
-        {name: `${featureName} vs House Price`},
-        {values: [points], series: ['original']},
-        {
-            xLabel: featureName,
-            yLabel: 'Price',
-        }
-    );
-}
-    plot(points, 'Square Feet');
+// function plot (points, featureName) {
+//     tfvis.render.scatterplot(
+//         {name: `${featureName} vs House Price`},
+//         {values: [points], series: ['original']},
+//         {
+//             xLabel: featureName,
+//             yLabel: 'Price',
+//         }
+//     );
+// }
+//     plot(points, 'Square Feet');
     const featureValues = points.map(p => p.x);
-const featureTensor = tf.tensor2d(featureValues, [featureValues.length, 1]);
+const featureTensor = normalise(tf.tensor2d(featureValues, [featureValues.length, 1]))
 const labelValues = points.map(p => p.y);
-const labelTensor = tf.tensor2d(labelValues, [labelValues.length, 1]);
+const labelTensor = normalise(tf.tensor2d(labelValues, [labelValues.length, 1]))
 
+
+const model = createModel()
+// model.add(tf.layers.dense({
+//     inputDim: 1,
+//     units: 1,
+//     activation: 'linear',
+//     useBias: true,
+// }));
+// const optimizer = tf.train.sgd(0.1);
+// model.compile({
+//    optimizer,
+//    loss: 'meanSquaredError'
+// });
+// model.summary()
+// tfvis.show.modelSummary({ name: `Model Summary`, tab: `Model` }, model);
+// tfvis.show.layer({ name: `Layer 1`, tab: `Model Inspection` }, model.getLayer(undefined, 0))
+document.body.append("Before split")
+const [trainingFeatureTensor, testingFeatureTensor] = tf.split(featureTensor, 2);
+    const [trainingLabelTensor, testingLabelTensor] = tf.split(labelTensor, 2);
+    document.body.append("after")
+   const h = await trainModel(model, trainingFeatureTensor, trainingLabelTensor)
+var newElement = document.createElement("p");
+newElement.textContent = h;
+document.body.appendChild(newElement);
+}
+function trainModel(model, trainingFeatureTensor, trainingLabelTensor) {
+    model.fit(trainingFeatureTensor, trainingLabelTensor, {
+        epochs: 20,
+        shuffle: true,
+    });
 }
 run()
 </script>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <title>TensorFlow.js linear regression</title>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
@@ -50,22 +50,14 @@
     model.compile({
       loss: 'meanSquaredError',
       optimizer,
-    });
+    })
 
     return model;
   }
-  function trainModel(model, trainingFeatureTensor, trainingLabelTensor) {
-    model.fit(trainingFeatureTensor, trainingLabelTensor, {
-        epochs: 20,
-        shuffle: true,
-    });
-}
-  async function run () {
-    // Ensure backend has initialized
-    await tf.ready();
 
+  async function run () {
     // Import from CSV
-    const houseSalesDataset = tf.data.csv("http://127.0.0.1:8080/kc_house_data.csv");
+    const houseSalesDataset = tf.data.csv("http://127.0.0.1:8000/kc_house_data.csv");
 
     // Extract x and y values to plot
     const pointsDataset = houseSalesDataset.map(record => ({
@@ -93,8 +85,11 @@
 
     const [trainingFeatureTensor, testingFeatureTensor] = tf.split(normalisedFeature.tensor, 2);
     const [trainingLabelTensor, testingLabelTensor] = tf.split(normalisedLabel.tensor, 2);
-    const model = createModel()
-    await trainModel(model, trainingFeatureTensor, trainingLabelTensor)
+
+    const model = createModel();
+    tfvis.show.modelSummary({ name: "Model summary" }, model);
+    const layer = model.getLayer(undefined, 0);
+    tfvis.show.layer({ name: "Layer 1" }, layer);
   }
 
   run();
